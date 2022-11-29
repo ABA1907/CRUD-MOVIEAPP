@@ -17,6 +17,8 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
+require("./app/routes/movies.routes")(app);
+require("dotenv").config();
 
 app.get('/',(req,res)=>{
   res.json({message: "Welcome to my application"});
@@ -35,8 +37,7 @@ db.mongoose
     process.exit();
   });
 
-require("./app/routes/movies.routes")(app);
-require("dotenv").config();
+
 
 const PORT = process.env.NODE_DOCKER_PORT || 8080;
 app.listen(PORT,()=>{

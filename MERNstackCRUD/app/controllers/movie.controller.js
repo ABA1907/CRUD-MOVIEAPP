@@ -1,4 +1,4 @@
-const db = require('../models');
+const db = require('../models/index');
 const Movie = db.movies;
 
 //create and save new movie
@@ -9,7 +9,7 @@ exports.create = (req,res) => {
   }
 
   const movie = new Movie({
-    title: req.body.title,
+    title: req.body?.title,
     year: req.body.year,
     director: req.body.director,
     description: req.body.description,
@@ -18,7 +18,7 @@ exports.create = (req,res) => {
     // }],
     IMdB: req.body.IMdB,
     published: req.body.published ? req.body.published : false
-  });
+  })
 
   movie
   .save(movie)
@@ -33,30 +33,36 @@ exports.create = (req,res) => {
 };
 
 //retrive all movies from database
-exports.findAll = (req,res) =>{
+exports.findAll = (req,res) => {  
   const title = req.query.title;
+  // console.log(title);
+
+  // var condition = title ? {title : {$regex: new RegExp(title), options:"i"}}:{};
   const year = req.query.year;
   const director = req.query.director;
   var condition = {
     where: {
-      $or: [{
-        title: {
+      $or: [
+        {"title": {
           $regex: new RegExp(title),$options: "i"
-        },
-        year: {
+        }},
+        {"year": {
           $regex: new RegExp(year),$options: "i"
-        },
-        director: {
+        }},
+        {"director": {
           $regex: new RegExp(director),$options: "i"
-        }
-      }]
+        }},
+        
+      ]
     }
-  };
-
-  Movie.findAll({})
+  }
+  Movie.find(condition)
   .then(data => {
-    res.send(data);
-  })
+    if(!data){
+      res.status(400).send({message: "The movie with this title cannort found"})
+    }else{
+      res.send(data);}
+    })
   .catch(err => {
     res.status(500).send({
       message:
